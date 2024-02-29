@@ -1,10 +1,11 @@
 package aggregate
 
 import (
-	"github.com/google/uuid"
 	"write-api/internal/common/eventsourcing"
 	"write-api/internal/domain/event"
 	"write-api/internal/domain/vo"
+
+	uuid "github.com/gofrs/uuid"
 )
 
 const (

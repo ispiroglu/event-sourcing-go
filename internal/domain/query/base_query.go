@@ -1,6 +1,8 @@
 package query
 
-import "github.com/google/uuid"
+import (
+	uuid "github.com/gofrs/uuid"
+)
 
 type BaseQuery struct {
 	AggregateId uuid.UUID

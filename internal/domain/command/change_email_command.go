@@ -1,6 +1,8 @@
 package command
 
+import "write-api/internal/common/eventsourcing"
+
 type ChangeEmailCommand struct {
-	BaseCommand
+	*eventsourcing.BaseCommand
 	Email string
 }

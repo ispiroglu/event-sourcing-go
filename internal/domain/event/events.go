@@ -12,17 +12,17 @@ const (
 )
 
 type EmailChangedEvent struct {
-	eventsourcing.BaseEvent
+	*eventsourcing.BaseEvent
 	Email string
 }
 
 type CustomerCreatedEvent struct {
-	eventsourcing.BaseEvent
+	*eventsourcing.BaseEvent
 	FirstName string
 	LastName  string
 }
 
 type WalletCreatedEvent struct {
-	eventsourcing.BaseEvent
+	*eventsourcing.BaseEvent
 	Wallet vo.Wallet
 }

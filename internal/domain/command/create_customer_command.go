@@ -1,7 +1,9 @@
 package command
 
+import "write-api/internal/common/eventsourcing"
+
 type CreateCustomerCommand struct {
-	BaseCommand
+	*eventsourcing.BaseCommand
 	FirstName string
 	LastName  string
 }

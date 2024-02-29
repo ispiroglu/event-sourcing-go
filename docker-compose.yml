@@ -15,14 +15,14 @@ services:
     ports:
       - "1113:1113"
       - "2113:2113"
-    volumes:
-      - type: volume
-        source: eventsourcing-volume-data
-        target: /var/lib/eventsourcing
-      - type: volume
-        source: eventsourcing-volume-logs
-        target: /var/log/eventsourcing
+    #volumes:
+    #  - type: volume
+    #    source: eventsourcing-volume-data
+    #    target: /var/lib/eventsourcing
+    #  - type: volume
+    #    source: eventsourcing-volume-logs
+    #    target: /var/log/eventsourcing
 
-volumes:
-  eventstore-volume-data:
-  eventstore-volume-logs:
+#volumes:
+#  eventstore-volume-data:
+#  eventstore-volume-logs:

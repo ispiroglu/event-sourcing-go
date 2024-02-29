@@ -1,10 +1,11 @@
 package command
 
 import (
-	"write-api/internal/server/domain/vo"
+	"write-api/internal/common/eventsourcing"
+	"write-api/internal/domain/vo"
 )
 
 type CreateWalletCommand struct {
-	BaseCommand
+	*eventsourcing.BaseCommand
 	Wallet vo.Wallet
 }

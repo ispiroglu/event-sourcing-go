@@ -57,7 +57,7 @@ func (r *EventRepository) LoadEvents(ctx context.Context, streamId string) ([]ev
 			return nil, err
 		}
 
-		events = append(events, eventsourcing.NewEventFromRecordedEvent(re.Event))
+		events = append(events, *eventsourcing.NewEventFromRecordedEvent(re.Event))
 	}
 
 	return events, nil

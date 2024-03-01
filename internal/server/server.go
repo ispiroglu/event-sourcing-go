@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"write-api/internal/application"
+	"write-api/internal/domain/command"
 	"write-api/internal/domain/query"
 	"write-api/internal/infrastructure/repository"
 
@@ -21,12 +22,19 @@ func New() *FiberServer {
 	// Event storeDB
 	eventStoreDb := newEventStoreDb()
 
-	// Query handlers
 	aggregateStore := repository.NewAggregateRepository(eventStoreDb)
+
+	// Query handlers
 	getCustomerQueryHandler := query.NewGetCustomerQueryByIdHandler(aggregateStore)
 
+	// Command handlers
+	createCustomerCommandHandler := command.NewCreateCustomerCommandHandler(aggregateStore)
+
 	// Application services
-	customerApplicationService := application.NewCustomerApplicationService(getCustomerQueryHandler)
+	customerApplicationService := application.NewCustomerApplicationService(
+		getCustomerQueryHandler,
+		createCustomerCommandHandler,
+	)
 
 	server := &FiberServer{
 		App:                        fiber.New(),
@@ -41,12 +49,12 @@ func New() *FiberServer {
 }
 
 func newEventStoreDb() *esdb.Client {
-	connectionString, err := esdb.ParseConnectionString("esdb://localhost:2113?tls=false")
+	cfg, err := esdb.ParseConnectionString("esdb://localhost:2113?tls=false")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	client, err := esdb.NewClient(connectionString)
+	client, err := esdb.NewClient(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}

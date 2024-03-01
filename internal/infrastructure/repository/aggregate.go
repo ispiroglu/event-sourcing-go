@@ -21,7 +21,6 @@ func NewAggregateRepository(db *esdb.Client) *AggregateRepository {
 	return &AggregateRepository{db: db}
 }
 
-// Should this take aggregateRoot or aggregateBase?
 func (r *AggregateRepository) Load(ctx context.Context, a eventsourcing.AggregateRoot) error {
 	stream, err := r.db.ReadStream(ctx, a.GetAggregateId().String(), esdb.ReadStreamOptions{}, readCount)
 	if err != nil {

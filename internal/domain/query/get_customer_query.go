@@ -16,8 +16,8 @@ type GetCustomerQueryByIdHandler struct {
 	r *repository.AggregateRepository
 }
 
-func NewGetCustomerQueryByIdHandler(r *repository.AggregateRepository) GetCustomerQueryByIdHandler {
-	return GetCustomerQueryByIdHandler{r: r}
+func NewGetCustomerQueryByIdHandler(r *repository.AggregateRepository) *GetCustomerQueryByIdHandler {
+	return &GetCustomerQueryByIdHandler{r: r}
 }
 
 func (h GetCustomerQueryByIdHandler) Handle(ctx context.Context, query GetCustomerQueryById) (*aggregate.CustomerAggregate, error) {
@@ -28,7 +28,7 @@ func (h GetCustomerQueryByIdHandler) Handle(ctx context.Context, query GetCustom
 		return nil, err
 	}
 
-	if a.Version == 0 {
+	if a.Version == -1 {
 		return nil, errors.New("customer not found")
 	}
 

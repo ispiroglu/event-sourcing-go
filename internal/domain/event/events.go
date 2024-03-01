@@ -11,18 +11,37 @@ const (
 	WalletCreatedEventType   = "WALLET_CREATED_EVENT"
 )
 
-type EmailChangedEvent struct {
-	*eventsourcing.BaseEvent
-	Email string
-}
-
 type CustomerCreatedEvent struct {
-	*eventsourcing.BaseEvent
 	FirstName string
 	LastName  string
 }
 
+func NewCustomerCreatedEvent(a eventsourcing.AggregateRoot, firstName, lastName string) (*eventsourcing.Event, error) {
+	eventData := CustomerCreatedEvent{
+		FirstName: firstName,
+		LastName:  lastName,
+	}
+
+	e := eventsourcing.NewEvent(a, CustomerCreatedEventType)
+	if err := e.SetEventData(eventData); err != nil {
+		return nil, err
+	}
+
+	return e, nil
+}
+
+type EmailChangedEvent struct {
+	Email string
+}
+
+func NewEmailChangedEvent(email string) EmailChangedEvent {
+	return EmailChangedEvent{Email: email}
+}
+
 type WalletCreatedEvent struct {
-	*eventsourcing.BaseEvent
 	Wallet vo.Wallet
+}
+
+func NewWalletCreatedEvent(w vo.Wallet) WalletCreatedEvent {
+	return WalletCreatedEvent{Wallet: w}
 }

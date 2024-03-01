@@ -12,25 +12,27 @@ const (
 )
 
 type AggregateRoot interface {
-	Apply(e Event) error
-	Load(events []Event) error
-	RaiseEvent(e Event) error
+	Apply(e *Event) error
+	Load(events []*Event) error
+	RaiseEvent(e *Event) error
 
 	GetAggregateId() uuid.UUID
-	GetUncommittedEvents() []Event
-	GetCommittedEvents() []Event
+	GetType() string
+	GetVersion() int64
+	GetUncommittedEvents() []*Event
+	GetCommittedEvents() []*Event
+	SetEventHandler(handler EventHandler)
 
 	ClearUncommittedEvents()
-	// When(e BaseEvent) error
 }
 
-type EventHandler func(e Event) error
+type EventHandler func(e *Event) error
 
 type AggregateBase struct {
 	ID                uuid.UUID
 	Version           int64
-	AppliedEvents     []Event
-	UncommittedEvents []Event
+	AppliedEvents     []*Event
+	UncommittedEvents []*Event
 	Type              string
 	withAppliedEvents bool
 	eventHandler      EventHandler
@@ -40,22 +42,16 @@ type AggregateConfig struct {
 	Id                uuid.UUID
 	Type              string
 	WithAppliedEvents bool
-	Handler           EventHandler
 }
 
 func NewAggregateBase(cfg *AggregateConfig) *AggregateBase {
-	if cfg.Handler == nil {
-		return nil
-	}
-
 	return &AggregateBase{
 		ID:                cfg.Id,
 		Version:           -1,
-		AppliedEvents:     make([]Event, 0, appliedEventCap),
-		UncommittedEvents: make([]Event, 0, unCommitedEventCap),
+		AppliedEvents:     make([]*Event, 0, appliedEventCap),
+		UncommittedEvents: make([]*Event, 0, unCommitedEventCap),
 		Type:              cfg.Type,
 		withAppliedEvents: cfg.WithAppliedEvents,
-		eventHandler:      cfg.Handler,
 	}
 }
 
@@ -63,11 +59,19 @@ func (a *AggregateBase) GetAggregateId() uuid.UUID {
 	return a.ID
 }
 
-func (a *AggregateBase) GetUncommittedEvents() []Event {
+func (a *AggregateBase) GetType() string {
+	return a.Type
+}
+
+func (a *AggregateBase) GetVersion() int64 {
+	return a.Version
+}
+
+func (a *AggregateBase) GetUncommittedEvents() []*Event {
 	return a.UncommittedEvents
 }
 
-func (a *AggregateBase) GetCommittedEvents() []Event {
+func (a *AggregateBase) GetCommittedEvents() []*Event {
 	return a.AppliedEvents
 }
 
@@ -75,7 +79,11 @@ func (a *AggregateBase) ClearUncommittedEvents() {
 	a.UncommittedEvents = a.UncommittedEvents[:0]
 }
 
-func (a *AggregateBase) Load(events []Event) error {
+func (a *AggregateBase) SetEventHandler(handler EventHandler) {
+	a.eventHandler = handler
+}
+
+func (a *AggregateBase) Load(events []*Event) error {
 	for _, event := range events {
 		if event.GetAggregateId() != a.ID {
 			return ErrInvalidAggregateID
@@ -91,8 +99,8 @@ func (a *AggregateBase) Load(events []Event) error {
 	return nil
 }
 
-func (a *AggregateBase) Apply(e Event) error {
-	if e.GetEventId() != a.ID {
+func (a *AggregateBase) Apply(e *Event) error {
+	if e.GetAggregateId() != a.ID {
 		return ErrInvalidAggregateID
 	}
 
@@ -108,8 +116,8 @@ func (a *AggregateBase) Apply(e Event) error {
 	return nil
 }
 
-func (a *AggregateBase) RaiseEvent(e Event) error {
-	if e.GetEventId() != a.ID {
+func (a *AggregateBase) RaiseEvent(e *Event) error {
+	if e.GetAggregateId() != a.ID {
 		return ErrInvalidAggregateID
 	}
 
@@ -121,8 +129,8 @@ func (a *AggregateBase) RaiseEvent(e Event) error {
 		return err
 	}
 
-	e.SetAggregateType(a.Type) // ? This cannot even get out this function scope? What's the point
-	a.Version = e.GetVersion() // ?
+	e.SetAggregateType(a.Type)
+	a.Version = e.GetVersion()
 	if a.withAppliedEvents {
 		a.AppliedEvents = append(a.AppliedEvents, e)
 	}
